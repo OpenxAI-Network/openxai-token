@@ -1,27 +1,16 @@
 import { Address, Deployer } from "../web3webdeploy/types";
-import { DeployCounterSettings, deployCounter } from "./counters/Counter";
-import {
-  DeployProxyCounterSettings,
-  deployProxyCounter,
-} from "./counters/ProxyCounter";
-import {
-  SetInitialCounterValueSettings,
-  setInitialCounterValue,
-} from "./counters/SetInitialCounterValue";
+import { deployOpenXAI, DeployOpenXAISettings } from "./internal/OpenXAI";
+import { deployOpenXAIGenesis, DeployOpenXAIGenesisSettings } from "./internal/OpenXAIGenesis";
 
 export interface DeploymentSettings {
-  counterSettings: DeployCounterSettings;
-  proxyCounterSettings: Omit<DeployProxyCounterSettings, "counter">;
-  setInitialCounterValueSettings: Omit<
-    SetInitialCounterValueSettings,
-    "counter"
-  >;
+  tokenSettings: DeployOpenXAISettings;
+  genesisSettings: Omit<DeployOpenXAIGenesisSettings, "openXAI">;
   forceRedeploy?: boolean;
 }
 
 export interface Deployment {
-  counter: Address;
-  proxyCounter: Address;
+  token: Address;
+  genesis: Address;
 }
 
 export async function deploy(
@@ -37,25 +26,16 @@ export async function deploy(
     }
   }
 
-  const counter = await deployCounter(
+  const token = await deployOpenXAI(
     deployer,
-    settings?.counterSettings ?? {}
-  );
-  const proxyCounter = await deployProxyCounter(deployer, {
-    ...(settings?.proxyCounterSettings ?? {}),
-    counter: counter,
-  });
-  await setInitialCounterValue(deployer, {
-    ...(settings?.setInitialCounterValueSettings ?? {
-      counterValue: BigInt(3),
-    }),
-    counter: counter,
+    settings?.tokenSettings ?? {}
+  ).then(deployment => deployment.proxy);
+  const genesis = await deployOpenXAIGenesis(deployer, {
+    ...(settings?.genesisSettings ?? {USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", rate: BigInt(10)^BigInt(12)}),
+    openXAI: token,
   });
 
-  const deployment = {
-    counter: counter,
-    proxyCounter: proxyCounter,
-  };
+  const deployment = { token, genesis };
   await deployer.saveDeployment({
     deploymentName: "V1.json",
     deployment: deployment,

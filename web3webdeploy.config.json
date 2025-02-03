@@ -2,6 +2,6 @@
   "packageManager": "bun",
   "deleteUnfinishedDeploymentOnGenerate": true,
   "defaultCreate2": true,
-  "defaultSalt": "plopmenz",
+  "defaultSalt": "OPENXAI",
   "exportToOriginalProject": true
 }

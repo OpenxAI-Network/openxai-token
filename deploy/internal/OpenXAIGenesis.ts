@@ -2,9 +2,10 @@ import { Address, DeployInfo, Deployer } from "../../web3webdeploy/types";
 
 export interface DeployOpenXAIGenesisSettings
   extends Omit<DeployInfo, "contract" | "args"> {
-  openXAI: Address;
-  USDC: Address;
-  rate: bigint;
+  ethOracle: Address;
+  wrappedEth: Address[];
+  stableCoins: Address[];
+  tiers: {amount: bigint, escrow: Address}[]
 }
 
 export async function deployOpenXAIGenesis(
@@ -15,7 +16,7 @@ export async function deployOpenXAIGenesis(
     .deploy({
       id: "OpenXAIGenesis",
       contract: "OpenXAIGenesis",
-      args: [settings.USDC, settings.openXAI, settings.rate],
+      args: [settings.ethOracle, settings.wrappedEth, settings.stableCoins, settings.tiers],
       ...settings,
     })
     .then((deployment) => deployment.address);

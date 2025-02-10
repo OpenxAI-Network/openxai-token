@@ -1,16 +1,13 @@
 import { Address, Deployer } from "../web3webdeploy/types";
 import { deployOpenXAI, DeployOpenXAISettings } from "./internal/OpenXAI";
-import { deployOpenXAIGenesis, DeployOpenXAIGenesisSettings } from "./internal/OpenXAIGenesis";
 
 export interface DeploymentSettings {
-  tokenSettings: DeployOpenXAISettings;
-  genesisSettings: Omit<DeployOpenXAIGenesisSettings, "openXAI">;
+  tokenSettings: Partial<DeployOpenXAISettings>;
   forceRedeploy?: boolean;
 }
 
 export interface Deployment {
   token: Address;
-  genesis: Address;
 }
 
 export async function deploy(
@@ -19,25 +16,20 @@ export async function deploy(
 ): Promise<Deployment> {
   if (settings?.forceRedeploy !== undefined && !settings.forceRedeploy) {
     const existingDeployment = await deployer.loadDeployment({
-      deploymentName: "V1.json",
+      deploymentName: "token.json",
     });
     if (existingDeployment !== undefined) {
       return existingDeployment;
     }
   }
 
-  const token = await deployOpenXAI(
-    deployer,
-    settings?.tokenSettings ?? {}
-  ).then(deployment => deployment.proxy);
-  const genesis = await deployOpenXAIGenesis(deployer, {
-    ...(settings?.genesisSettings ?? {USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", rate: BigInt(10)^BigInt(12)}),
-    openXAI: token,
-  });
+  const token = await deployOpenXAI(deployer, {
+    ...settings?.tokenSettings,
+  }).then((deployment) => deployment.proxy);
 
-  const deployment = { token, genesis };
+  const deployment = { token };
   await deployer.saveDeployment({
-    deploymentName: "V1.json",
+    deploymentName: "token.json",
     deployment: deployment,
   });
   return deployment;

@@ -87,11 +87,11 @@ contract OpenxAIGenesisTest is Test {
     vm.stopPrank();
 
     OpenxAIGenesis.Tier[] memory tiers = new OpenxAIGenesis.Tier[](5);
-    tiers[0] = OpenxAIGenesis.Tier(1000000000, address(1)); // 1000 USD
-    tiers[1] = OpenxAIGenesis.Tier(10000000000, address(2)); // 10000 USD
-    tiers[2] = OpenxAIGenesis.Tier(100000000000, address(3)); // 100000 USD
-    tiers[3] = OpenxAIGenesis.Tier(1000000, address(4)); // 1 USD
-    tiers[4] = OpenxAIGenesis.Tier(1000000000, address(5)); // 1000 USD
+    tiers[0] = OpenxAIGenesis.Tier(1000000000, payable(address(1))); // 1000 USD
+    tiers[1] = OpenxAIGenesis.Tier(10000000000, payable(address(2))); // 10000 USD
+    tiers[2] = OpenxAIGenesis.Tier(100000000000, payable(address(3))); // 100000 USD
+    tiers[3] = OpenxAIGenesis.Tier(1000000, payable(address(4))); // 1 USD
+    tiers[4] = OpenxAIGenesis.Tier(1000000000, payable(address(5))); // 1000 USD
 
     distributor = new OpenxAIGenesis(ethOracle, wrappedEth, stableCoins, tiers);
   }

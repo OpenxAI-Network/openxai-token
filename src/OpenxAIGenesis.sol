@@ -2,13 +2,15 @@
 pragma solidity ^0.8.20;
 
 import {SafeERC20, IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Address} from "../lib/openzeppelin-contracts/contracts/utils/Address.sol";
 
 import {AggregatorV3Interface} from "../lib/chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
-contract OpenxAIGenesis {
+import {Rescue} from "./Rescue.sol";
+
+contract OpenxAIGenesis is Rescue {
   error UnsupportedTransferToken(IERC20 token);
   error InvalidPrice(int256 price);
-  error EscrowTransferReverted();
 
   event Participated(
     uint256 indexed tier,
@@ -26,7 +28,7 @@ contract OpenxAIGenesis {
   /// Milestones that the transferred funds will be allocated to
   struct Tier {
     uint96 amount;
-    address escrow;
+    address payable escrow;
   }
   Tier[] public tiers;
 
@@ -84,26 +86,23 @@ contract OpenxAIGenesis {
 
       if (usdInTier >= usdRemaining) {
         // contribution fits within this tier
-        (bool success, ) = tiers[i].escrow.call{value: ethRemaining}("");
-        if (!success) {
-          revert EscrowTransferReverted();
-        }
+        Address.sendValue(tiers[i].escrow, ethRemaining);
         emit Participated(i, msg.sender, usdRemaining);
         tiers[i].amount -= uint96(usdRemaining); // usd remaining is smaller than usd in tier, thus fits in uint96
-        break;
+        return;
       } else {
         // contribution overflows to next tier
         uint256 ethUsed = (usdInTier * msg.value) / usdTotal;
-        (bool success, ) = tiers[i].escrow.call{value: ethUsed}("");
-        if (!success) {
-          revert EscrowTransferReverted();
-        }
+        Address.sendValue(tiers[i].escrow, ethUsed);
         emit Participated(i, msg.sender, usdInTier);
         ethRemaining -= ethUsed;
         usdRemaining -= usdInTier;
         tiers[i].amount = 0;
       }
     }
+
+    // Refund leftover ETH if tiers are full
+    Address.sendValue(payable(msg.sender), ethRemaining);
   }
 
   function _wrappedeth_contribution(IERC20 _token, uint256 _amount) internal {
@@ -128,7 +127,7 @@ contract OpenxAIGenesis {
         );
         emit Participated(i, msg.sender, usdRemaining);
         tiers[i].amount -= uint96(usdRemaining); // usd remaining is smaller than usd in tier, thus fits in uint96
-        break;
+        return;
       } else {
         // contribution overflows to next tier
         uint256 ethUsed = (usdInTier * _amount) / usdTotal;
@@ -167,7 +166,7 @@ contract OpenxAIGenesis {
         );
         emit Participated(i, msg.sender, usdRemaining);
         tiers[i].amount -= uint96(usdRemaining); // usd remaining is smaller than usd in tier, thus fits in uint96
-        break;
+        return;
       } else {
         // contribution overflows to next tier
         SafeERC20.safeTransferFrom(

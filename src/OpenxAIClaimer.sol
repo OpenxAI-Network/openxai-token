@@ -7,11 +7,13 @@ import {ECDSA} from "../lib/openzeppelin-contracts/contracts/utils/cryptography/
 
 import {IMintable} from "./IMintable.sol";
 
+import {Rescue} from "./Rescue.sol";
+
 bytes32 constant CLAIM_TYPEHASH = keccak256(
   "Claim(uint256 proofId,address claimer,uint256 amount)"
 );
 
-contract OpenxAIClaiming is Ownable, EIP712 {
+contract OpenxAIClaiming is Ownable, EIP712, Rescue {
   error ProofAlreadyClaimed();
   error TokenSpendingLimitReached();
   error InvalidProof();

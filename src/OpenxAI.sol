@@ -7,7 +7,7 @@ import {ERC20Upgradeable} from "../lib/openzeppelin-contracts-upgradeable/contra
 import {AccessControlUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol";
 import {IMintable} from "./IMintable.sol";
 
-contract OpenXAI is
+contract OpenxAI is
   Initializable,
   UUPSUpgradeable,
   ERC20Upgradeable,
@@ -26,7 +26,7 @@ contract OpenXAI is
 
   function initialize() public initializer {
     __UUPSUpgradeable_init();
-    __ERC20_init("OpenXAI", "OPENX");
+    __ERC20_init("OpenxAI", "OPENX");
     __AccessControl_init();
     _grantRole(DEFAULT_ADMIN_ROLE, ADMIN);
   }

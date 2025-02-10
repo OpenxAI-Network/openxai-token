@@ -2,18 +2,18 @@
 pragma solidity ^0.8.0;
 
 import {Test, console2} from "../lib/forge-std/src/Test.sol";
-import {OpenXAI} from "../src/OpenXAI.sol";
-import {OpenXAIGenesis, IERC20, AggregatorV3Interface} from "../src/OpenXAIGenesis.sol";
+import {OpenxAI} from "../src/OpenxAI.sol";
+import {OpenxAIGenesis, IERC20, AggregatorV3Interface} from "../src/OpenxAIGenesis.sol";
 
 import {ERC1967Proxy} from "../lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 contract MockTokenFactory {
-  function createToken() external returns (OpenXAI token) {
-    token = OpenXAI(
+  function createToken() external returns (OpenxAI token) {
+    token = OpenxAI(
       address(
         new ERC1967Proxy(
-          address(new OpenXAI()),
-          abi.encodeCall(OpenXAI.initialize, ())
+          address(new OpenxAI()),
+          abi.encodeCall(OpenxAI.initialize, ())
         )
       )
     );
@@ -64,11 +64,11 @@ contract MockEthOracle is AggregatorV3Interface {
   }
 }
 
-contract OpenXAIGenesisTest is Test {
-  OpenXAI weth;
-  OpenXAI stablecoin;
+contract OpenxAIGenesisTest is Test {
+  OpenxAI weth;
+  OpenxAI stablecoin;
   AggregatorV3Interface ethOracle;
-  OpenXAIGenesis distributor;
+  OpenxAIGenesis distributor;
 
   function setUp() public {
     MockTokenFactory tokenFactory = new MockTokenFactory();
@@ -86,14 +86,14 @@ contract OpenXAIGenesisTest is Test {
     stablecoin.grantRole(stablecoin.MINT_ROLE(), address(this));
     vm.stopPrank();
 
-    OpenXAIGenesis.Tier[] memory tiers = new OpenXAIGenesis.Tier[](5);
-    tiers[0] = OpenXAIGenesis.Tier(1000000000, address(1)); // 1000 USD
-    tiers[1] = OpenXAIGenesis.Tier(10000000000, address(2)); // 10000 USD
-    tiers[2] = OpenXAIGenesis.Tier(100000000000, address(3)); // 100000 USD
-    tiers[3] = OpenXAIGenesis.Tier(1000000, address(4)); // 1 USD
-    tiers[4] = OpenXAIGenesis.Tier(1000000000, address(5)); // 1000 USD
+    OpenxAIGenesis.Tier[] memory tiers = new OpenxAIGenesis.Tier[](5);
+    tiers[0] = OpenxAIGenesis.Tier(1000000000, address(1)); // 1000 USD
+    tiers[1] = OpenxAIGenesis.Tier(10000000000, address(2)); // 10000 USD
+    tiers[2] = OpenxAIGenesis.Tier(100000000000, address(3)); // 100000 USD
+    tiers[3] = OpenxAIGenesis.Tier(1000000, address(4)); // 1 USD
+    tiers[4] = OpenxAIGenesis.Tier(1000000000, address(5)); // 1000 USD
 
-    distributor = new OpenXAIGenesis(ethOracle, wrappedEth, stableCoins, tiers);
+    distributor = new OpenxAIGenesis(ethOracle, wrappedEth, stableCoins, tiers);
   }
 
   function test_stablecoin_single_tier(
@@ -111,7 +111,7 @@ contract OpenXAIGenesisTest is Test {
     stablecoin.approve(address(distributor), amount);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(0, contributor, amount);
+    emit OpenxAIGenesis.Participated(0, contributor, amount);
 
     distributor.transfer_erc20(IERC20(address(stablecoin)), amount);
 
@@ -137,10 +137,10 @@ contract OpenXAIGenesisTest is Test {
     stablecoin.approve(address(distributor), amount);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(0, contributor, firstTierMax);
+    emit OpenxAIGenesis.Participated(0, contributor, firstTierMax);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(1, contributor, amountAfterFirstTier);
+    emit OpenxAIGenesis.Participated(1, contributor, amountAfterFirstTier);
 
     distributor.transfer_erc20(IERC20(address(stablecoin)), amount);
 
@@ -168,13 +168,13 @@ contract OpenXAIGenesisTest is Test {
     stablecoin.approve(address(distributor), amount);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(0, contributor, firstTierMax);
+    emit OpenxAIGenesis.Participated(0, contributor, firstTierMax);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(1, contributor, secondTierMax);
+    emit OpenxAIGenesis.Participated(1, contributor, secondTierMax);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(2, contributor, amountAfterSecondTier);
+    emit OpenxAIGenesis.Participated(2, contributor, amountAfterSecondTier);
 
     distributor.transfer_erc20(IERC20(address(stablecoin)), amount);
 
@@ -203,13 +203,13 @@ contract OpenXAIGenesisTest is Test {
     weth.approve(address(distributor), eth);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(0, contributor, firstTierMax);
+    emit OpenxAIGenesis.Participated(0, contributor, firstTierMax);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(1, contributor, secondTierMax);
+    emit OpenxAIGenesis.Participated(1, contributor, secondTierMax);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(2, contributor, amountAfterSecondTier);
+    emit OpenxAIGenesis.Participated(2, contributor, amountAfterSecondTier);
 
     distributor.transfer_erc20(IERC20(address(weth)), eth);
 
@@ -249,13 +249,13 @@ contract OpenXAIGenesisTest is Test {
     vm.startPrank(contributor);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(0, contributor, firstTierMax);
+    emit OpenxAIGenesis.Participated(0, contributor, firstTierMax);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(1, contributor, secondTierMax);
+    emit OpenxAIGenesis.Participated(1, contributor, secondTierMax);
 
     vm.expectEmit(address(distributor));
-    emit OpenXAIGenesis.Participated(2, contributor, amountAfterSecondTier);
+    emit OpenxAIGenesis.Participated(2, contributor, amountAfterSecondTier);
 
     distributor.transfer_native{value: eth}();
 

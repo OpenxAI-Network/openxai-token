@@ -1,11 +1,11 @@
 import { Address, Deployer } from "../web3webdeploy/types";
 import {
-  deployOpenXAIGenesis,
-  DeployOpenXAIGenesisSettings,
-} from "./internal/OpenXAIGenesis";
+  deployOpenxAIGenesis,
+  DeployOpenxAIGenesisSettings,
+} from "./internal/OpenxAIGenesis";
 
 export interface DeploymentSettings {
-  genesisSettings: Partial<DeployOpenXAIGenesisSettings>;
+  genesisSettings: Partial<DeployOpenxAIGenesisSettings>;
   forceRedeploy?: boolean;
 }
 
@@ -26,7 +26,7 @@ export async function deploy(
     }
   }
 
-  const genesis = await deployOpenXAIGenesis(deployer, {
+  const genesis = await deployOpenxAIGenesis(deployer, {
     tiers: [
       {
         amount: deployer.viem.parseUnits("10000", 6),

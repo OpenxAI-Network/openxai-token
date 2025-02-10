@@ -5,7 +5,7 @@ import {SafeERC20, IERC20} from "../lib/openzeppelin-contracts/contracts/token/E
 
 import {AggregatorV3Interface} from "../lib/chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
-contract OpenXAIGenesis {
+contract OpenxAIGenesis {
   error UnsupportedTransferToken(IERC20 token);
   error InvalidPrice(int256 price);
   error EscrowTransferReverted();

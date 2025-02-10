@@ -1,8 +1,8 @@
 import { Address, Deployer } from "../web3webdeploy/types";
-import { deployOpenXAI, DeployOpenXAISettings } from "./internal/OpenXAI";
+import { deployOpenxAI, DeployOpenxAISettings } from "./internal/OpenxAI";
 
 export interface DeploymentSettings {
-  tokenSettings: Partial<DeployOpenXAISettings>;
+  tokenSettings: Partial<DeployOpenxAISettings>;
   forceRedeploy?: boolean;
 }
 
@@ -23,7 +23,7 @@ export async function deploy(
     }
   }
 
-  const token = await deployOpenXAI(deployer, {
+  const token = await deployOpenxAI(deployer, {
     ...settings?.tokenSettings,
   }).then((deployment) => deployment.proxy);
 

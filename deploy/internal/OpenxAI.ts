@@ -9,7 +9,7 @@ export async function deployOpenxAI(
 ): Promise<{ implementation: Address; proxy: Address }> {
   const implementation = await deployer
     .deploy({
-      id: "OpenxAI Implementation",
+      id: "OpenxAIImplementation",
       contract: "OpenxAI",
       ...settings,
     })
@@ -17,9 +17,10 @@ export async function deployOpenxAI(
 
   const proxy = await deployer
     .deploy({
-      id: "OpenxAI Proxy",
+      id: "OpenxAIProxy",
       contract: "ERC1967Proxy",
       args: [
+        implementation,
         deployer.viem.encodeFunctionData({
           abi: deployer.viem.parseAbi(["function initialize()"]),
           functionName: "initialize",

@@ -45,7 +45,7 @@ export async function deploy(
       ? {
           ethOracle: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1#sepolia-testnet
           wrappedEth: ["0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"],
-          stableCoins: [],
+          stableCoins: ["0x2902b792Af43Ea1481569bc35b62a31BB2C20E95"],
         }
       : {
           ethOracle: "0x694AA1769357215DE4FAC081bf1f309aDC325306", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1&search=eth%2Fusd#ethereum-mainnet

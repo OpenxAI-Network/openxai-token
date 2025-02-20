@@ -13,7 +13,7 @@ bytes32 constant CLAIM_TYPEHASH = keccak256(
   "Claim(uint256 proofId,address claimer,uint256 amount)"
 );
 
-contract OpenxAIClaiming is Ownable, EIP712, Rescue {
+contract OpenxAIClaimer is Ownable, EIP712, Rescue {
   error ProofAlreadyClaimed();
   error TokenSpendingLimitReached();
   error InvalidProof();

@@ -1,4 +1,4 @@
-export const OpenxAI = {
+export const OpenxAIContract = {
   address: "0x32fee802CA56DC9544CF239DD8092C1AeC88953d",
   abi: [
     { type: "constructor", inputs: [], stateMutability: "nonpayable" },

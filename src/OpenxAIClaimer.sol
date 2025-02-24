@@ -21,8 +21,8 @@ contract OpenxAIClaimer is Ownable, EIP712, Rescue {
   event TokensClaimed(address indexed account, uint256 amount);
 
   IMintable public immutable token;
-  uint256 public tokenSpendingLimit;
-  uint256 public spendingPeriodDuration;
+  uint256 public immutable tokenSpendingLimit;
+  uint256 public immutable spendingPeriodDuration;
   mapping(uint256 proofId => bool claimed) public proofClaimed;
 
   uint256 public currentTokenSpending;

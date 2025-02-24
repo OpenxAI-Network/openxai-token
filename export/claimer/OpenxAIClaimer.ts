@@ -1,5 +1,5 @@
 export const OpenxAIClaimerContract = {
-  address: "0x55B8496A81925b99f87a1b7BDeCeD835507ff11b",
+  address: "0x3d8b390340eEa96198ffDE68bA02dA3143Df97Cf",
   abi: [
     {
       type: "constructor",
@@ -153,6 +153,12 @@ export const OpenxAIClaimerContract = {
       type: "event",
       name: "TokensClaimed",
       inputs: [
+        {
+          name: "proofId",
+          type: "uint256",
+          indexed: true,
+          internalType: "uint256",
+        },
         {
           name: "account",
           type: "address",

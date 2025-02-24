@@ -18,7 +18,11 @@ contract OpenxAIClaimer is Ownable, EIP712, Rescue {
   error TokenSpendingLimitReached();
   error InvalidProof();
 
-  event TokensClaimed(address indexed account, uint256 amount);
+  event TokensClaimed(
+    uint256 indexed proofId,
+    address indexed account,
+    uint256 amount
+  );
 
   IMintable public immutable token;
   uint256 public immutable tokenSpendingLimit;
@@ -81,7 +85,7 @@ contract OpenxAIClaimer is Ownable, EIP712, Rescue {
     }
 
     token.mint(_claimer, _amount);
-    emit TokensClaimed(_claimer, _amount);
+    emit TokensClaimed(_proofId, _claimer, _amount);
 
     proofClaimed[_proofId] = true;
     if (currentSpendingPeriod != spendingPeriod) {

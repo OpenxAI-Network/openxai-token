@@ -3,7 +3,7 @@ import {
   deployOpenxAIClaimer,
   DeployOpenxAIClaimerSettings,
 } from "./internal/OpenxAIClaimer";
-import { OpenxAI } from "../export/token/OpenxAI";
+import { OpenxAIContract } from "../export/token/OpenxAI";
 
 export interface DeploymentSettings {
   claimerSettings: Partial<DeployOpenxAIClaimerSettings>;
@@ -29,7 +29,7 @@ export async function deploy(
 
   const claimer = await deployOpenxAIClaimer(deployer, {
     ...{
-      token: OpenxAI.address,
+      token: OpenxAIContract.address,
       spendingLimit: BigInt(10_000_000) * BigInt(10) ** BigInt(18), // 10M
       spendingPeriod: BigInt(7 * 24 * 60 * 60), // 1 week
       signer: "0xB2834b9001F9E24226172731f34Dc0A6B0940c41",
@@ -39,8 +39,8 @@ export async function deploy(
 
   await deployer.execute({
     id: "OpenxAIClaimerMintingRole",
-    abi: [...OpenxAI.abi],
-    to: OpenxAI.address,
+    abi: [...OpenxAIContract.abi],
+    to: OpenxAIContract.address,
     function: "grantRole",
     args: [deployer.viem.keccak256(deployer.viem.toBytes("MINT")), claimer],
   });

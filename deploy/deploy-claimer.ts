@@ -43,6 +43,7 @@ export async function deploy(
     to: OpenxAIContract.address,
     function: "grantRole",
     args: [deployer.viem.keccak256(deployer.viem.toBytes("MINT")), claimer],
+    from: "0x3e166454c7781d3fD4ceaB18055cad87136970Ea",
   });
 
   const deployment = { claimer };

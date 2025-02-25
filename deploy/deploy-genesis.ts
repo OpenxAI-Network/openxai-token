@@ -3,6 +3,12 @@ import {
   deployOpenxAIGenesis,
   DeployOpenxAIGenesisSettings,
 } from "./internal/OpenxAIGenesis";
+import projectsRaw from "./projects.json";
+
+const projects = projectsRaw as {
+  fundingGoal: string;
+  escrow: Address;
+}[];
 
 export interface DeploymentSettings {
   genesisSettings: Partial<DeployOpenxAIGenesisSettings>;
@@ -27,25 +33,17 @@ export async function deploy(
   }
 
   const genesis = await deployOpenxAIGenesis(deployer, {
-    tiers: [
-      {
-        amount: deployer.viem.parseUnits("10000", 6),
-        escrow: "0x519ce4C129a981B2CBB4C3990B1391dA24E8EbF3",
-      },
-      {
-        amount: deployer.viem.parseUnits("5000", 6),
-        escrow: "0x519ce4C129a981B2CBB4C3990B1391dA24E8EbF3",
-      },
-      {
-        amount: deployer.viem.parseUnits("25000", 6),
-        escrow: "0x519ce4C129a981B2CBB4C3990B1391dA24E8EbF3",
-      },
-    ],
+    tiers: projects.map((p) => {
+      return {
+        amount: deployer.viem.parseUnits(p.fundingGoal, 6),
+        escrow: p.escrow,
+      };
+    }),
     ...(deployer.settings.defaultChainId === 11155111
       ? {
           ethOracle: "0x694AA1769357215DE4FAC081bf1f309aDC325306", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1#sepolia-testnet
           wrappedEth: ["0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"],
-          stableCoins: ["0xC69258C33cCFD5d2F862CAE48D4F869Db59Abc6A"],
+          stableCoins: ["0xC69258C33cCFD5d2F862CAE48D4F869Db59Abc6A"], // USDP
         }
       : {
           ethOracle: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1&search=eth%2Fusd#ethereum-mainnet

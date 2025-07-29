@@ -3,7 +3,7 @@ import {
   deployOpenxAIClaimer,
   DeployOpenxAIClaimerSettings,
 } from "./internal/OpenxAIClaimer";
-import { OpenxAIContract } from "../export/token/OpenxAI";
+import { OpenxAIContract } from "../export/OpenxAI";
 
 export interface DeploymentSettings {
   claimerSettings: Partial<DeployOpenxAIClaimerSettings>;

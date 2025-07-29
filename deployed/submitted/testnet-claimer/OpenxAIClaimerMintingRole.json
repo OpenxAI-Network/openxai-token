@@ -1,0 +1,27 @@
+{
+  "type": "function",
+  "id": "OpenxAIClaimerMintingRole",
+  "batch": "testnet-claimer",
+  "batchIndex": 1,
+  "functionName": "grantRole",
+  "functionArgs": [
+    "0xfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba",
+    "0xc749169dB9C231E1797Aa9cD7f5B7a88AeD25b08"
+  ],
+  "to": "0xa7342BBB2256B3407C2dc5ad140f9892E76BaA32",
+  "value": "0",
+  "data": "0x2f2ff15dfdf81848136595c31bb5f76217767372bc4bf906663038eb38381131ea27ecba000000000000000000000000c749169db9c231e1797aa9cd7f5b7a88aed25b08",
+  "gas": "56644",
+  "from": "0x3e166454c7781d3fD4ceaB18055cad87136970Ea",
+  "transactionSettings": {
+    "chainId": 84532,
+    "nonce": "0",
+    "baseFee": "1000138",
+    "priorityFee": "100000"
+  },
+  "source": "/home/plopmenz/git/openmesh/openxai-token",
+  "submitted": {
+    "transactionHash": "0x060e8639ef9d8176110ee1650f3982cede13566730713699bd03f62ed44980c5",
+    "date": "2025-07-29T17:07:38.816Z"
+  }
+}

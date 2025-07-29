@@ -42,8 +42,8 @@ export async function deploy(
         }
       : {
           ethOracle: "0x694AA1769357215DE4FAC081bf1f309aDC325306", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1#sepolia-testnet
-          wrappedEth: ["0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"],
-          stableCoins: ["0xC69258C33cCFD5d2F862CAE48D4F869Db59Abc6A"], // USDP
+          wrappedEth: [],
+          stableCoins: ["0xEE5b5633B8fa453bD1a4A24973c742BD0488D1C6"], // USDP
         }),
     ...settings?.genesisSettings,
   });

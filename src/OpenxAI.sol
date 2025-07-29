@@ -3,14 +3,14 @@ pragma solidity ^0.8.0;
 
 import {Initializable} from "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
-import {ERC20Upgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol";
+import {ERC20VotesUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
 import {AccessControlUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol";
 import {IMintable} from "./IMintable.sol";
 
 contract OpenxAI is
   Initializable,
   UUPSUpgradeable,
-  ERC20Upgradeable,
+  ERC20VotesUpgradeable,
   AccessControlUpgradeable,
   IMintable
 {

@@ -65,12 +65,14 @@ contract MockEthOracle is AggregatorV3Interface {
 }
 
 contract OpenxAIGenesisTest is Test {
+  address payable receiver;
   OpenxAI weth;
   OpenxAI stablecoin;
   AggregatorV3Interface ethOracle;
   OpenxAIGenesis distributor;
 
   function setUp() public {
+    receiver = payable(address(1));
     MockTokenFactory tokenFactory = new MockTokenFactory();
     weth = tokenFactory.createToken();
     stablecoin = tokenFactory.createToken();
@@ -86,14 +88,20 @@ contract OpenxAIGenesisTest is Test {
     stablecoin.grantRole(stablecoin.MINT_ROLE(), address(this));
     vm.stopPrank();
 
-    OpenxAIGenesis.Tier[] memory tiers = new OpenxAIGenesis.Tier[](5);
-    tiers[0] = OpenxAIGenesis.Tier(1000000000, payable(address(1))); // 1000 USD
-    tiers[1] = OpenxAIGenesis.Tier(10000000000, payable(address(2))); // 10000 USD
-    tiers[2] = OpenxAIGenesis.Tier(100000000000, payable(address(3))); // 100000 USD
-    tiers[3] = OpenxAIGenesis.Tier(1000000, payable(address(4))); // 1 USD
-    tiers[4] = OpenxAIGenesis.Tier(1000000000, payable(address(5))); // 1000 USD
+    uint256[] memory tiers = new uint256[](5);
+    tiers[0] = 1000000000; // 1000 USD
+    tiers[1] = 10000000000; // 10000 USD
+    tiers[2] = 100000000000; // 100000 USD
+    tiers[3] = 1000000; // 1 USD
+    tiers[4] = 1000000000; // 1000 USD
 
-    distributor = new OpenxAIGenesis(ethOracle, wrappedEth, stableCoins, tiers);
+    distributor = new OpenxAIGenesis(
+      receiver,
+      ethOracle,
+      wrappedEth,
+      stableCoins,
+      tiers
+    );
   }
 
   function test_stablecoin_single_tier(
@@ -101,8 +109,6 @@ contract OpenxAIGenesisTest is Test {
     uint8 amount
   ) public {
     vm.assume(contributor != address(0) && amount != 0);
-
-    (, address firstTierEscrow) = distributor.tiers(0);
 
     stablecoin.mint(contributor, amount);
 
@@ -117,7 +123,7 @@ contract OpenxAIGenesisTest is Test {
 
     vm.stopPrank();
 
-    assertEq(stablecoin.balanceOf(firstTierEscrow), amount);
+    assertEq(stablecoin.balanceOf(receiver), amount);
   }
 
   function test_stablecoin_two_tier(
@@ -126,9 +132,8 @@ contract OpenxAIGenesisTest is Test {
   ) public {
     vm.assume(contributor != address(0) && amountAfterFirstTier != 0);
 
-    (uint96 firstTierMax, address firstTierEscrow) = distributor.tiers(0);
-    (, address secondTierEscrow) = distributor.tiers(1);
-    uint96 amount = firstTierMax + amountAfterFirstTier;
+    uint256 firstTierMax = distributor.tiers(0);
+    uint256 amount = firstTierMax + amountAfterFirstTier;
 
     stablecoin.mint(contributor, amount);
 
@@ -146,8 +151,7 @@ contract OpenxAIGenesisTest is Test {
 
     vm.stopPrank();
 
-    assertEq(stablecoin.balanceOf(firstTierEscrow), firstTierMax);
-    assertEq(stablecoin.balanceOf(secondTierEscrow), amountAfterFirstTier);
+    assertEq(stablecoin.balanceOf(receiver), amount);
   }
 
   function test_stablecoin_three_tier(
@@ -156,10 +160,9 @@ contract OpenxAIGenesisTest is Test {
   ) public {
     vm.assume(contributor != address(0) && amountAfterSecondTier != 0);
 
-    (uint96 firstTierMax, address firstTierEscrow) = distributor.tiers(0);
-    (uint96 secondTierMax, address secondTierEscrow) = distributor.tiers(1);
-    (, address thirdTierEscrow) = distributor.tiers(2);
-    uint96 amount = firstTierMax + secondTierMax + amountAfterSecondTier;
+    uint256 firstTierMax = distributor.tiers(0);
+    uint256 secondTierMax = distributor.tiers(1);
+    uint256 amount = firstTierMax + secondTierMax + amountAfterSecondTier;
 
     stablecoin.mint(contributor, amount);
 
@@ -180,21 +183,18 @@ contract OpenxAIGenesisTest is Test {
 
     vm.stopPrank();
 
-    assertEq(stablecoin.balanceOf(firstTierEscrow), firstTierMax);
-    assertEq(stablecoin.balanceOf(secondTierEscrow), secondTierMax);
-    assertEq(stablecoin.balanceOf(thirdTierEscrow), amountAfterSecondTier);
+    assertEq(stablecoin.balanceOf(receiver), amount);
   }
 
   function test_weth_three_tier(address contributor) public {
     vm.assume(contributor != address(0));
     // ETH oracle should use 3123 ETH/USD
     uint256 eth = 5 ether;
-    uint96 usd = 5 * 3123 * 10 ** 6;
+    uint256 usd = 5 * 3123 * 10 ** 6;
 
-    (uint96 firstTierMax, address firstTierEscrow) = distributor.tiers(0);
-    (uint96 secondTierMax, address secondTierEscrow) = distributor.tiers(1);
-    (, address thirdTierEscrow) = distributor.tiers(2);
-    uint96 amountAfterSecondTier = usd - firstTierMax - secondTierMax;
+    uint256 firstTierMax = distributor.tiers(0);
+    uint256 secondTierMax = distributor.tiers(1);
+    uint256 amountAfterSecondTier = usd - firstTierMax - secondTierMax;
 
     weth.mint(contributor, eth);
 
@@ -215,34 +215,18 @@ contract OpenxAIGenesisTest is Test {
 
     vm.stopPrank();
 
-    // Allowed to be off by $0.0001 due to rounding errors
-    assertApproxEqAbs(
-      weth.balanceOf(firstTierEscrow),
-      (firstTierMax * 10 ** 12) / 3123,
-      100
-    );
-    assertApproxEqAbs(
-      weth.balanceOf(secondTierEscrow),
-      (secondTierMax * 10 ** 12) / 3123,
-      100
-    );
-    assertApproxEqAbs(
-      weth.balanceOf(thirdTierEscrow),
-      (amountAfterSecondTier * 10 ** 12) / 3123,
-      100
-    );
+    assertEq(weth.balanceOf(receiver), eth);
   }
 
   function test_native_three_tier(address contributor) public {
     vm.assume(contributor != address(0));
     // ETH oracle should use 3123 ETH/USD
     uint256 eth = 5 ether;
-    uint96 usd = 5 * 3123 * 10 ** 6;
+    uint256 usd = 5 * 3123 * 10 ** 6;
 
-    (uint96 firstTierMax, address firstTierEscrow) = distributor.tiers(0);
-    (uint96 secondTierMax, address secondTierEscrow) = distributor.tiers(1);
-    (, address thirdTierEscrow) = distributor.tiers(2);
-    uint96 amountAfterSecondTier = usd - firstTierMax - secondTierMax;
+    uint256 firstTierMax = distributor.tiers(0);
+    uint256 secondTierMax = distributor.tiers(1);
+    uint256 amountAfterSecondTier = usd - firstTierMax - secondTierMax;
 
     vm.deal(contributor, eth);
 
@@ -261,21 +245,6 @@ contract OpenxAIGenesisTest is Test {
 
     vm.stopPrank();
 
-    // Allowed to be off by $0.0001 due to rounding errors
-    assertApproxEqAbs(
-      firstTierEscrow.balance,
-      (firstTierMax * 10 ** 12) / 3123,
-      100
-    );
-    assertApproxEqAbs(
-      secondTierEscrow.balance,
-      (secondTierMax * 10 ** 12) / 3123,
-      100
-    );
-    assertApproxEqAbs(
-      thirdTierEscrow.balance,
-      (amountAfterSecondTier * 10 ** 12) / 3123,
-      100
-    );
+    assertEq(receiver.balance, eth);
   }
 }

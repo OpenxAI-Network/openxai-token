@@ -10,7 +10,7 @@ import {IMintable} from "./IMintable.sol";
 import {Rescue} from "./Rescue.sol";
 
 bytes32 constant CLAIM_TYPEHASH = keccak256(
-  "Claim(uint256 proofId,address claimer,uint256 amount)"
+  "Claim(address claimer,uint256 total)"
 );
 
 contract OpenxAIClaimer is Ownable, EIP712, Rescue {
@@ -18,16 +18,12 @@ contract OpenxAIClaimer is Ownable, EIP712, Rescue {
   error TokenSpendingLimitReached();
   error InvalidProof();
 
-  event TokensClaimed(
-    uint256 indexed proofId,
-    address indexed account,
-    uint256 amount
-  );
+  event TokensClaimed(address indexed account, uint256 total, uint256 released);
 
   IMintable public immutable token;
   uint256 public immutable tokenSpendingLimit;
   uint256 public immutable spendingPeriodDuration;
-  mapping(uint256 proofId => bool claimed) public proofClaimed;
+  mapping(address account => uint256 claimed) public claimed;
 
   uint256 public currentTokenSpending;
   uint256 public currentSpendingPeriod;
@@ -43,27 +39,23 @@ contract OpenxAIClaimer is Ownable, EIP712, Rescue {
     spendingPeriodDuration = _spendingPeriodDuration;
   }
 
-  /// Claim your tokens, with a proof granted to you from our server for performing a certain action.
+  /// Claim your tokens with a proof from an off-chain signer.
   /// @param _v V component of the server proof signature.
   /// @param _r R component of the server proof signature.
   /// @param _s S component of the server proof signature.
-  /// @param _proofId Unique identifier of the proof.
   /// @param _claimer To which address the tokens are sent.
-  /// @param _amount How many tokens are sent.
+  /// @param _total How many tokens this address can claim in total (including previously claimed).
   function claim(
     uint8 _v,
     bytes32 _r,
     bytes32 _s,
-    uint256 _proofId,
     address _claimer,
-    uint256 _amount
+    uint256 _total
   ) external {
-    if (proofClaimed[_proofId]) {
-      revert ProofAlreadyClaimed();
-    }
+    uint256 amount = _total - claimed[_claimer];
 
     uint256 spendingPeriod = block.timestamp / spendingPeriodDuration;
-    uint256 tokenSpending = _amount;
+    uint256 tokenSpending = amount;
     if (spendingPeriod == currentSpendingPeriod) {
       // Withing the same spending period
       tokenSpending += currentTokenSpending;
@@ -73,9 +65,7 @@ contract OpenxAIClaimer is Ownable, EIP712, Rescue {
     }
 
     address signer = ECDSA.recover(
-      _hashTypedDataV4(
-        keccak256(abi.encode(CLAIM_TYPEHASH, _proofId, _claimer, _amount))
-      ),
+      _hashTypedDataV4(keccak256(abi.encode(CLAIM_TYPEHASH, _claimer, _total))),
       _v,
       _r,
       _s
@@ -84,10 +74,10 @@ contract OpenxAIClaimer is Ownable, EIP712, Rescue {
       revert InvalidProof();
     }
 
-    token.mint(_claimer, _amount);
-    emit TokensClaimed(_proofId, _claimer, _amount);
+    token.mint(_claimer, amount);
+    emit TokensClaimed(_claimer, _total, amount);
 
-    proofClaimed[_proofId] = true;
+    claimed[_claimer] = _total;
     if (currentSpendingPeriod != spendingPeriod) {
       currentSpendingPeriod = spendingPeriod;
     }

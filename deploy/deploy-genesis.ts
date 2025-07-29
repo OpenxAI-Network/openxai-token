@@ -3,12 +3,6 @@ import {
   deployOpenxAIGenesis,
   DeployOpenxAIGenesisSettings,
 } from "./internal/OpenxAIGenesis";
-import projectsRaw from "./projects.json";
-
-const projects = projectsRaw as {
-  fundingGoal: string;
-  escrow: Address;
-}[];
 
 export interface DeploymentSettings {
   genesisSettings: Partial<DeployOpenxAIGenesisSettings>;
@@ -33,25 +27,23 @@ export async function deploy(
   }
 
   const genesis = await deployOpenxAIGenesis(deployer, {
-    tiers: projects.map((p) => {
-      return {
-        amount: deployer.viem.parseUnits(p.fundingGoal, 6),
-        escrow: p.escrow,
-      };
-    }),
-    ...(deployer.settings.defaultChainId === 11155111
+    receiver: "0x519ce4C129a981B2CBB4C3990B1391dA24E8EbF3",
+    tiers: ["10000", "15000", "20000", "25000", "30000", "50000"].map((a) =>
+      deployer.viem.parseUnits(a, 6)
+    ),
+    ...(deployer.settings.defaultChainId === 8453
       ? {
+          ethOracle: "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70", // https://docs.chain.link/data-feeds/price-feeds/addresses?page=1&testnetPage=1&network=base&search=eth%2Fusd
+          wrappedEth: ["0x4200000000000000000000000000000000000006"],
+          stableCoins: [
+            "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2", // USDT
+            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+          ],
+        }
+      : {
           ethOracle: "0x694AA1769357215DE4FAC081bf1f309aDC325306", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1#sepolia-testnet
           wrappedEth: ["0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"],
           stableCoins: ["0xC69258C33cCFD5d2F862CAE48D4F869Db59Abc6A"], // USDP
-        }
-      : {
-          ethOracle: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1&search=eth%2Fusd#ethereum-mainnet
-          wrappedEth: ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
-          stableCoins: [
-            "0xdAC17F958D2ee523a2206206994597C13D831ec7", // USDT
-            "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
-          ],
         }),
     ...settings?.genesisSettings,
   });

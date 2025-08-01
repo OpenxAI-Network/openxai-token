@@ -28,9 +28,10 @@ export async function deploy(
 
   const genesis = await deployOpenxAIGenesis(deployer, {
     receiver: "0x519ce4C129a981B2CBB4C3990B1391dA24E8EbF3",
-    tiers: ["10000", "15000", "20000", "25000", "30000", "50000"].map((a) =>
-      deployer.viem.parseUnits(a, 6)
-    ),
+    tiers: new Array(15)
+      .fill("10000")
+      .concat("100000")
+      .map((a) => deployer.viem.parseUnits(a, 6)),
     ...(deployer.settings.defaultChainId === 8453
       ? {
           ethOracle: "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70", // https://docs.chain.link/data-feeds/price-feeds/addresses?page=1&testnetPage=1&network=base&search=eth%2Fusd
@@ -41,9 +42,12 @@ export async function deploy(
           ],
         }
       : {
-          ethOracle: "0x694AA1769357215DE4FAC081bf1f309aDC325306", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1#sepolia-testnet
+          ethOracle: "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=base&page=1&testnetPage=1#base-sepolia-testnet
           wrappedEth: [],
-          stableCoins: ["0xEE5b5633B8fa453bD1a4A24973c742BD0488D1C6"], // USDP
+          stableCoins: [
+            "0xEE5b5633B8fa453bD1a4A24973c742BD0488D1C6", // USDP
+            "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // USDC
+          ],
         }),
     ...settings?.genesisSettings,
   });

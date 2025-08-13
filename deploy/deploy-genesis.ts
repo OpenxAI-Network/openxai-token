@@ -30,7 +30,7 @@ export async function deploy(
     receiver: "0x519ce4C129a981B2CBB4C3990B1391dA24E8EbF3",
     tiers: new Array(15)
       .fill("10000")
-      .concat("100000")
+      .concat("142000")
       .map((a) => deployer.viem.parseUnits(a, 6)),
     ...(deployer.settings.defaultChainId === 8453
       ? {
